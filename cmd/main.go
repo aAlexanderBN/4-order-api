@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"go/api/configs"
 	myUser "go/api/internal/myuser"
+	"go/api/pkg/db"
 	"net/http"
 )
 
 func main() {
 
 	conf := configs.LoadConfig("aalexanderbn@yandex.ru")
+
+	_ = db.NewDb(conf)
 
 	router := http.NewServeMux()
 	myUser.NewAuthHandler(router, myUser.AuthHandlerDeps{
