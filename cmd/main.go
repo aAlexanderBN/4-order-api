@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/api/configs"
 	myUser "go/api/internal/myuser"
+	"go/api/internal/product"
 	"go/api/pkg/db"
 	"net/http"
 )
@@ -12,9 +13,16 @@ func main() {
 
 	conf := configs.LoadConfig("aalexanderbn@yandex.ru")
 
-	_ = db.NewDb(conf)
+	db1 := db.NewDb(conf)
 
 	router := http.NewServeMux()
+
+	productRepositories := product.NewProductRepository(db1.DB)
+
+	product.NewProductHandler(router, product.ProductHandlerDeps{
+		ProductRepository: productRepositories,
+	})
+
 	myUser.NewAuthHandler(router, myUser.AuthHandlerDeps{
 		Config: conf,
 	})

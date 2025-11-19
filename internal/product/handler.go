@@ -1,26 +1,122 @@
 package product
 
-import "go/api/internal/cart"
+import (
+	"go/api/pkg/req"
+	"go/api/pkg/res"
+	"net/http"
+	"strconv"
+)
 
-func get(id int) *Product {
+type ProductHandlerDeps struct {
+	ProductRepository *ProductRepositories
+}
 
-	return &Product{
-		Id:         1,
-		Name:       "test name",
-		Desciption: "test name",
+type ProductHandler struct {
+	ProductRepository *ProductRepositories
+}
+
+func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
+	handler := &ProductHandler{
+		ProductRepository: deps.ProductRepository}
+
+	router.HandleFunc("POST /product", handler.Create())
+	router.HandleFunc("PATH /product", handler.Update())
+	router.HandleFunc("DELETE /product/{id}", handler.Delete())
+	router.HandleFunc("GET /product/{id}", handler.GetById())
+}
+
+func (handler *ProductHandler) Create() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//Прочитать боди
+		body, err := req.HandleBody[Product](&w, r)
+		if err != nil {
+			return
+		}
+
+		product := Product{
+			Id:         body.Id,
+			Name:       body.Name,
+			Desciption: body.Desciption,
+			Images:     body.Images,
+		}
+
+		createdLProduct, err := handler.ProductRepository.Create(&product)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res.Json(w, createdLProduct, 201)
 	}
 }
 
-func delete(id int) bool {
+func (handler *ProductHandler) Update() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//Прочитать боди
+		body, err := req.HandleBody[Product](&w, r)
+		if err != nil {
+			return
+		}
 
-	return true
+		product := Product{
+			Id:         body.Id,
+			Name:       body.Name,
+			Desciption: body.Desciption,
+			Images:     body.Images,
+		}
+
+		createdLProduct, err := handler.ProductRepository.Update(&product)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res.Json(w, createdLProduct, 201)
+	}
 }
 
-func create(*cart.Carts) bool {
-	return true
+func (handler *ProductHandler) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//Прочитать боди
+		idString := r.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		var pr *Product
+		pr, err = handler.ProductRepository.GetById(uint(id))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		_, err = handler.ProductRepository.Delete(pr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		res.Json(w, nil, 200)
+	}
 }
 
-func update(*cart.Carts) bool {
+func (handler *ProductHandler) GetById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//Прочитать боди
+		idString := r.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	return true
+		var createdLProduct *Product
+
+		createdLProduct, err = handler.ProductRepository.GetById(uint(id))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		res.Json(w, createdLProduct, 202)
+
+	}
 }
