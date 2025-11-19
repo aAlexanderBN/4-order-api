@@ -5,6 +5,8 @@ import (
 	"go/api/pkg/res"
 	"net/http"
 	"strconv"
+
+	"github.com/lib/pq"
 )
 
 type ProductHandlerDeps struct {
@@ -20,7 +22,7 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 		ProductRepository: deps.ProductRepository}
 
 	router.HandleFunc("POST /product", handler.Create())
-	router.HandleFunc("PATH /product", handler.Update())
+	router.HandleFunc("PATCH /product", handler.Update())
 	router.HandleFunc("DELETE /product/{id}", handler.Delete())
 	router.HandleFunc("GET /product/{id}", handler.GetById())
 }
@@ -34,10 +36,9 @@ func (handler *ProductHandler) Create() http.HandlerFunc {
 		}
 
 		product := Product{
-			Id:         body.Id,
-			Name:       body.Name,
-			Desciption: body.Desciption,
-			Images:     body.Images,
+			Name:        body.Name,
+			Description: body.Description,
+			Images:      pq.StringArray{},
 		}
 
 		createdLProduct, err := handler.ProductRepository.Create(&product)
@@ -58,10 +59,9 @@ func (handler *ProductHandler) Update() http.HandlerFunc {
 		}
 
 		product := Product{
-			Id:         body.Id,
-			Name:       body.Name,
-			Desciption: body.Desciption,
-			Images:     body.Images,
+			Name:        body.Name,
+			Description: body.Description,
+			//Images:      pq.StringArray{},
 		}
 
 		createdLProduct, err := handler.ProductRepository.Update(&product)

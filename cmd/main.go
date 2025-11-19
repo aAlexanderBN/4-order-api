@@ -7,6 +7,7 @@ import (
 	"go/api/internal/product"
 	"go/api/pkg/db"
 	"go/api/pkg/middleware"
+	"log"
 	"net/http"
 )
 
@@ -15,6 +16,11 @@ func main() {
 	conf := configs.LoadConfig("aalexanderbn@yandex.ru")
 
 	db1 := db.NewDb(conf)
+
+	err := db1.AutoMigrate(&product.Product{})
+	if err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
 
 	router := http.NewServeMux()
 
@@ -35,6 +41,9 @@ func main() {
 
 	fmt.Println("Server is listening on port 8081")
 
-	server.ListenAndServe()
+	er := server.ListenAndServe()
+	if er != nil {
+		fmt.Println("ERR Server isnot working")
+	}
 
 }

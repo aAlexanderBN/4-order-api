@@ -7,8 +7,7 @@ import (
 
 type Product struct {
 	gorm.Model
-	Id         int            `json:"id"`
-	Name       string         `json:"name"`
-	Desciption string         `json:"desciption"`
-	Images     pq.StringArray `json:"images"`
+	Name        string         `json:"name" validate:"required"`
+	Description string         `json:"Description"`
+	Images      pq.StringArray `json:"images" gorm:"type:text[]"`
 }
