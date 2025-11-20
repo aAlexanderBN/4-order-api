@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"go/api/configs"
+	"go/api/internal/myuser"
 	myUser "go/api/internal/myuser"
 	"go/api/internal/product"
 	"go/api/pkg/db"
 	"go/api/pkg/middleware"
-	"log"
 	"net/http"
 )
 
@@ -17,11 +17,6 @@ func main() {
 
 	db1 := db.NewDb(conf)
 
-	err := db1.AutoMigrate(&product.Product{})
-	if err != nil {
-		log.Fatalf("Migration failed: %v", err)
-	}
-
 	router := http.NewServeMux()
 
 	productRepositories := product.NewProductRepository(db1.DB)
@@ -30,8 +25,9 @@ func main() {
 		ProductRepository: productRepositories,
 	})
 
-	myUser.NewAuthHandler(router, myUser.AuthHandlerDeps{
-		Config: conf,
+	userRepositories := myuser.NewUserRepository(db1.DB)
+	myUser.NewUserHandler(router, myUser.UserHandlerDeps{
+		UserRepository: userRepositories,
 	})
 
 	server := http.Server{

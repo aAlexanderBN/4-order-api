@@ -1,52 +1,102 @@
-package myUser
+package myuser
 
 import (
 	"fmt"
-	"go/api/configs"
+	"go/api/pkg/req"
+	"go/api/pkg/res"
 	"math/rand"
 	"net/http"
 )
 
-type AuthHandlerDeps struct {
-	*configs.Config
+type UserHandlerDeps struct {
+	UserRepository *UserRepositories
 }
 
-type AuthHandler struct {
-	*configs.Config
+type UserHandler struct {
+	UserRepository *UserRepositories
 }
 
 const lenVC = 4
 
-func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
-	handler := &AuthHandler{
-		Config: deps.Config}
+func NewUserHandler(router *http.ServeMux, deps UserHandlerDeps) {
+
+	handler := &UserHandler{
+		UserRepository: deps.UserRepository}
+
 	router.HandleFunc("GET /autByPhone", handler.AuthByPhone())
-	router.HandleFunc("GET /verify/{code}", handler.Verify())
+	router.HandleFunc("GET /verify", handler.Verify())
 }
 
-func (handler *AuthHandler) AuthByPhone() http.HandlerFunc {
+func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		body, err := req.HandleBody[Users](&w, r)
+		if err != nil {
+			return
+		}
 		code := verifiCode(lenVC)
-		//send code by phone
-		//record to DB
-		fmt.Println("Dend  by phone code=", code)
+
+		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
+		if err != nil {
+			fmt.Println("Ошибка чтения из базы")
+			return
+		}
+
+		var name string
+
+		if userdb.Name == "" {
+			name = userdb.Name
+		} else {
+			name = body.Name
+		}
+
+		user := Users{
+			Name: name,
+			Code: code,
+		}
+
+		user.sessionID = "sadld7834hnds3ds"
+
+		var createdUser *Users
+		if userdb.Name == "" {
+			createdUser, err = handler.UserRepository.CreateUser(&user)
+		} else {
+			createdUser, err = handler.UserRepository.UpdateUser(&user)
+		}
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		createdUser.Code = 0
+
+		res.Json(w, createdUser, 201)
+
+		fmt.Println("Send by phone code=", code)
 	}
 }
 
-func (handler *AuthHandler) Verify() http.HandlerFunc {
+func (handler *UserHandler) Verify() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		code := r.PathValue("code")
-		_ = code
-		// чтение из БД данные о коде в паке pkg
-		user_code := "1234"
-		if user_code == code {
-			fmt.Println("Verify true")
+		body, err := req.HandleBody[Users](&w, r)
+		if err != nil {
+			return
+		}
+
+		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
+		if err != nil {
+			fmt.Println("Ошибка чтения из базы")
+			return
+		}
+
+		if userdb.sessionID == body.sessionID && userdb.Code == body.Code {
+			userdb.token = "fdgfhgjhkjhghfgdfgfhjk"
+			res.Json(w, userdb, 201)
 		} else {
-			fmt.Println("Verify false")
+			res.Json(w, nil, 201)
 		}
 
 	}

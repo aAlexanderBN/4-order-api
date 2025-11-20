@@ -1,9 +1,11 @@
-package myUser
+package myuser
 
 import "gorm.io/gorm"
 
 type Users struct {
 	gorm.Model
-	Name string
-	Code int
+	Name      string
+	Code      int
+	sessionID string
+	token     string
 }
