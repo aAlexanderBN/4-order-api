@@ -40,7 +40,7 @@ func (j *JWT) Pasre(token string) (bool, *JWTData) {
 	if err != nil {
 		return false, nil
 	}
-	phone := t.Claims.(jwt.MapClaims)["phone"]
+	phone := t.Claims.(jwt.MapClaims)["Phone"]
 	return t.Valid, &JWTData{
 		Phone: phone.(string),
 	}
