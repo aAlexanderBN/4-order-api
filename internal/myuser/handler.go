@@ -69,6 +69,7 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 		if userdb.Phone == "" {
 			createdUser, err = handler.UserRepository.CreateUser(&user)
 		} else {
+
 			createdUser, err = handler.UserRepository.UpdateUser(&user)
 		}
 
@@ -93,7 +94,7 @@ func (handler *UserHandler) Verify() http.HandlerFunc {
 			return
 		}
 
-		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
+		userdb, err := handler.UserRepository.GetByNameUser(body.Phone)
 		if err != nil {
 			fmt.Println("Ошибка чтения из базы")
 			return
