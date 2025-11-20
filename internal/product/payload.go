@@ -1,10 +1,13 @@
 package product
 
-import "gorm.io/gorm"
+import (
+	"github.com/lib/pq"
+	"gorm.io/gorm"
+)
 
 type Product struct {
 	gorm.Model
-	Id         int
-	Name       string
-	Desciption string
+	Name        string         `json:"name" validate:"required"`
+	Description string         `json:"Description"`
+	Images      pq.StringArray `json:"images" gorm:"type:text[]"`
 }
