@@ -8,8 +8,13 @@ import (
 )
 
 type Config struct {
-	Email string
-	Db    DbConfig
+	Email  string
+	Db     DbConfig
+	MyUser MyUserConfig
+}
+
+type MyUserConfig struct {
+	Secret string
 }
 
 type DbConfig struct {

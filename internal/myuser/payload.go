@@ -5,7 +5,8 @@ import "gorm.io/gorm"
 type Users struct {
 	gorm.Model
 	Name      string
+	Phone     string
 	Code      int
-	sessionID string
-	token     string
+	SessionID string
+	Token     string
 }

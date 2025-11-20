@@ -31,11 +31,11 @@ func (repo *UserRepositories) UpdateUser(user *Users) (*Users, error) {
 	return user, nil
 }
 
-func (repo *UserRepositories) GetByNameUser(name string) (*Users, error) {
+func (repo *UserRepositories) GetByNameUser(phone string) (*Users, error) {
 
 	var user Users
 
-	result := repo.Database.First(&user, name)
+	result := repo.Database.First(&user, "phone = ?", phone)
 
 	if result.Error != nil {
 		return nil, result.Error

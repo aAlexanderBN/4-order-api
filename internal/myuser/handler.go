@@ -2,18 +2,24 @@ package myuser
 
 import (
 	"fmt"
+	"go/api/configs"
+	"go/api/pkg/jwt"
 	"go/api/pkg/req"
 	"go/api/pkg/res"
 	"math/rand"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type UserHandlerDeps struct {
 	UserRepository *UserRepositories
+	*configs.Config
 }
 
 type UserHandler struct {
 	UserRepository *UserRepositories
+	*configs.Config
 }
 
 const lenVC = 4
@@ -21,7 +27,9 @@ const lenVC = 4
 func NewUserHandler(router *http.ServeMux, deps UserHandlerDeps) {
 
 	handler := &UserHandler{
-		UserRepository: deps.UserRepository}
+		UserRepository: deps.UserRepository,
+		Config:         deps.Config,
+	}
 
 	router.HandleFunc("GET /autByPhone", handler.AuthByPhone())
 	router.HandleFunc("GET /verify", handler.Verify())
@@ -37,15 +45,12 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 		}
 		code := verifiCode(lenVC)
 
-		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
-		if err != nil {
-			fmt.Println("Ошибка чтения из базы")
-			return
-		}
-
 		var name string
 
-		if userdb.Name == "" {
+		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
+		if err != nil {
+			name = body.Name
+		} else if userdb.Name == "" {
 			name = userdb.Name
 		} else {
 			name = body.Name
@@ -56,7 +61,9 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 			Code: code,
 		}
 
-		user.sessionID = "sadld7834hnds3ds"
+		id := uuid.New()
+
+		user.SessionID = id.String()
 
 		var createdUser *Users
 		if userdb.Name == "" {
@@ -92,8 +99,8 @@ func (handler *UserHandler) Verify() http.HandlerFunc {
 			return
 		}
 
-		if userdb.sessionID == body.sessionID && userdb.Code == body.Code {
-			userdb.token = "fdgfhgjhkjhghfgdfgfhjk"
+		if userdb.SessionID == body.SessionID && userdb.Code == body.Code {
+			userdb.Token, err = jwt.NewJWT(handler.Config.MyUser.Secret).Create(userdb.Phone)
 			res.Json(w, userdb, 201)
 		} else {
 			res.Json(w, nil, 201)

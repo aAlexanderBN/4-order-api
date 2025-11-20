@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/api/internal/myuser"
 	"go/api/internal/product"
 	"os"
 
@@ -24,5 +25,6 @@ func main() {
 
 	fmt.Println(os.Getenv("DSN"))
 	db.AutoMigrate(&product.Product{})
+	db.AutoMigrate(&myuser.Users{})
 
 }
