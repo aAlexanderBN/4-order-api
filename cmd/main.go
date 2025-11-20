@@ -28,6 +28,7 @@ func main() {
 	userRepositories := myuser.NewUserRepository(db1.DB)
 	myUser.NewUserHandler(router, myUser.UserHandlerDeps{
 		UserRepository: userRepositories,
+		Config:         conf,
 	})
 
 	server := http.Server{

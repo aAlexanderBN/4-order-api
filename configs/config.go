@@ -33,5 +33,8 @@ func LoadConfig(email string) *Config {
 		Db: DbConfig{
 			Dsn: os.Getenv("DSN"),
 		},
+		MyUser: MyUserConfig{
+			Secret: os.Getenv("JWT_SECRET"),
+		},
 	}
 }

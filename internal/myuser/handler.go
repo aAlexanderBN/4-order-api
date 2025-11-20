@@ -45,20 +45,20 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 		}
 		code := verifiCode(lenVC)
 
-		var name string
+		var phone string
 
-		userdb, err := handler.UserRepository.GetByNameUser(body.Name)
+		userdb, err := handler.UserRepository.GetByNameUser(body.Phone)
 		if err != nil {
-			name = body.Name
-		} else if userdb.Name == "" {
-			name = userdb.Name
+			phone = body.Phone
+		} else if userdb.Phone != "" {
+			phone = userdb.Phone
 		} else {
-			name = body.Name
+			phone = body.Phone
 		}
 
 		user := Users{
-			Name: name,
-			Code: code,
+			Phone: phone,
+			Code:  code,
 		}
 
 		id := uuid.New()
@@ -66,7 +66,7 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 		user.SessionID = id.String()
 
 		var createdUser *Users
-		if userdb.Name == "" {
+		if userdb.Phone == "" {
 			createdUser, err = handler.UserRepository.CreateUser(&user)
 		} else {
 			createdUser, err = handler.UserRepository.UpdateUser(&user)
@@ -100,8 +100,10 @@ func (handler *UserHandler) Verify() http.HandlerFunc {
 		}
 
 		if userdb.SessionID == body.SessionID && userdb.Code == body.Code {
+			response := map[string]string{"token": userdb.Token}
+
 			userdb.Token, err = jwt.NewJWT(handler.Config.MyUser.Secret).Create(userdb.Phone)
-			res.Json(w, userdb, 201)
+			res.Json(w, response, 201)
 		} else {
 			res.Json(w, nil, 201)
 		}
@@ -111,5 +113,5 @@ func (handler *UserHandler) Verify() http.HandlerFunc {
 
 func verifiCode(n int) int {
 
-	return rand.Intn(n * 99)
+	return rand.Intn(n * 100)
 }
