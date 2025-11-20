@@ -56,12 +56,13 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 			phone = body.Phone
 		}
 
-		user := Users{
-			Phone: phone,
-			Code:  code,
-		}
-
 		id := uuid.New()
+
+		user := Users{
+			Phone:     phone,
+			Code:      code,
+			SessionID: id.String(),
+		}
 
 		user.SessionID = id.String()
 
@@ -101,9 +102,9 @@ func (handler *UserHandler) Verify() http.HandlerFunc {
 		}
 
 		if userdb.SessionID == body.SessionID && userdb.Code == body.Code {
+			userdb.Token, err = jwt.NewJWT(handler.Config.MyUser.Secret).Create(userdb.Phone)
 			response := map[string]string{"token": userdb.Token}
 
-			userdb.Token, err = jwt.NewJWT(handler.Config.MyUser.Secret).Create(userdb.Phone)
 			res.Json(w, response, 201)
 		} else {
 			res.Json(w, nil, 201)
