@@ -33,6 +33,7 @@ func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 			writeUnauthed(w)
 			return
 		}
+
 		fmt.Println(token)
 		fmt.Println(isValid)
 		fmt.Println(data)
