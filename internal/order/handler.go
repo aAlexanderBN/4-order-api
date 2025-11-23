@@ -24,7 +24,7 @@ func NewOrderHandler(router *http.ServeMux, deps OrderHandlerDeps) {
 
 	router.Handle("POST /order", middleware.IsAuthed(handler.Create(), deps.Config))
 	router.HandleFunc("GET /order/{id}", handler.GetById())
-	router.HandleFunc("GET /order/", handler.GetAll())
+	router.HandleFunc("GET /my-orders", handler.GetAll())
 }
 
 func (handler *OrderHandler) Create() http.HandlerFunc {
@@ -71,10 +71,13 @@ func (handler *OrderHandler) GetById() http.HandlerFunc {
 func (handler *OrderHandler) GetAll() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var UserId uint
-		UserId = 4
+		userID, ok := r.Context().Value(middleware.ContextUserIDKey).(uint)
+		if !ok {
+			http.Error(w, "User ID not found in context", http.StatusUnauthorized)
+			return
+		}
 
-		createdLProduct, err := handler.OrderRepository.GetByAll(UserId)
+		createdLProduct, err := handler.OrderRepository.GetAll(userID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

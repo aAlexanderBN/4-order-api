@@ -6,7 +6,7 @@ type OrderRepositories struct {
 	Database *gorm.DB
 }
 
-func NewProductRepository(database *gorm.DB) *OrderRepositories {
+func NewOrderRepository(database *gorm.DB) *OrderRepositories {
 
 	return &OrderRepositories{
 		Database: database,
@@ -34,13 +34,13 @@ func (repo *OrderRepositories) GetById(id uint) (*Order, error) {
 	return &Ord, nil
 }
 
-func (repo *OrderRepositories) GetByAll(id uint) ([]Order, error) {
+func (repo *OrderRepositories) GetAll(id uint) ([]Order, error) {
 
 	var arrord []Order
 
 	repo.Database.Table("Order").
 		Where("userID = ?", id).
-		Scan(arrord)
+		Scan(&arrord)
 
 	return arrord, nil
 }

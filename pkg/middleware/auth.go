@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go/api/configs"
+	"go/api/internal/myuser"
 	"go/api/pkg/jwt"
 	"net/http"
 	"strings"
@@ -12,7 +13,8 @@ import (
 type key string
 
 const (
-	ContextPhoneKey key = "ContextPhoneKey"
+	ContextPhoneKey  key = "ContextPhoneKey"
+	ContextUserIDKey key = "ContextPhoneKey"
 )
 
 func writeUnauthed(w http.ResponseWriter) {
@@ -34,11 +36,19 @@ func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 			return
 		}
 
+		user, err := myuser.GetByNameUser(data.Phone)
+		if err != nil {
+			writeUnauthed(w)
+			return
+		}
+
 		fmt.Println(token)
 		fmt.Println(isValid)
 		fmt.Println(data)
 
 		ctx := context.WithValue(r.Context(), ContextPhoneKey, data.Phone)
+		ctx = context.WithValue(r.Context(), ContextUserIDKey, user.ID)
+
 		req := r.WithContext(ctx)
 
 		next.ServeHTTP(w, req)

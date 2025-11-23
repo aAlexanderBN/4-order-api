@@ -5,6 +5,7 @@ import (
 	"go/api/configs"
 	"go/api/internal/myuser"
 	myUser "go/api/internal/myuser"
+	"go/api/internal/order"
 	"go/api/internal/product"
 	"go/api/pkg/db"
 	"go/api/pkg/middleware"
@@ -29,6 +30,12 @@ func main() {
 	myUser.NewUserHandler(router, myUser.UserHandlerDeps{
 		UserRepository: userRepositories,
 		Config:         conf,
+	})
+
+	orderRepositories := order.NewOrderRepository(db1.DB)
+	order.NewOrderHandler(router, order.OrderHandlerDeps{
+		OrderRepository: orderRepositories,
+		Config:          conf,
 	})
 
 	server := http.Server{
