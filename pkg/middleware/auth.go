@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go/api/configs"
-	"go/api/internal/myuser"
 	"go/api/pkg/jwt"
 	"net/http"
 	"strings"
@@ -14,7 +13,7 @@ type key string
 
 const (
 	ContextPhoneKey  key = "ContextPhoneKey"
-	ContextUserIDKey key = "ContextPhoneKey"
+	ContextUserIDKey key = "ContextUserIDKey"
 )
 
 func writeUnauthed(w http.ResponseWriter) {
@@ -36,7 +35,7 @@ func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
 			return
 		}
 
-		user, err := myuser.GetByNameUser(data.Phone)
+		user, err := userRepo.GetByNameUser(data.Phone)
 		if err != nil {
 			writeUnauthed(w)
 			return

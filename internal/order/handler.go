@@ -23,8 +23,8 @@ func NewOrderHandler(router *http.ServeMux, deps OrderHandlerDeps) {
 		OrderRepository: deps.OrderRepository}
 
 	router.Handle("POST /order", middleware.IsAuthed(handler.Create(), deps.Config))
-	router.HandleFunc("GET /order/{id}", handler.GetById())
-	router.HandleFunc("GET /my-orders", handler.GetAll())
+	router.Handle("GET /order/{id}", middleware.IsAuthed(handler.GetById(), deps.Config))
+	router.Handle("GET /my-orders", middleware.IsAuthed(handler.GetAll(), deps.Config))
 }
 
 func (handler *OrderHandler) Create() http.HandlerFunc {

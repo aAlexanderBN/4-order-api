@@ -38,8 +38,8 @@ func (repo *OrderRepositories) GetAll(id uint) ([]Order, error) {
 
 	var arrord []Order
 
-	repo.Database.Table("Order").
-		Where("userID = ?", id).
+	repo.Database.Table("orders").
+		Where("user_id = ?", id).
 		Scan(&arrord)
 
 	return arrord, nil

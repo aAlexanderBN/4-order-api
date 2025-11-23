@@ -13,6 +13,6 @@ type tableProduct struct {
 
 type Order struct {
 	gorm.Model
-	UserID   int            `validate:"required"`
+	UserID   int            `json:"user_id" validate:"required"`
 	Products []tableProduct `gorm:"many2many:order_products"`
 }
