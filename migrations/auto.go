@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go/api/internal/myuser"
+	"go/api/internal/order"
 	"go/api/internal/product"
 	"os"
 
@@ -26,5 +27,5 @@ func main() {
 	fmt.Println(os.Getenv("DSN"))
 	db.AutoMigrate(&product.Product{})
 	db.AutoMigrate(&myuser.Users{})
-
+	db.AutoMigrate(&order.Order{})
 }
