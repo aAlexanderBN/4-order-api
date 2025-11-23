@@ -6,13 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
-// type tableProduct struct {
-// 	Product product.Product `validate:"required"`
-// 	cout    int             `validate:"required"`
-// }
+type OrderProduct struct {
+	OrderID   uint `gorm:"primaryKey"`
+	ProductID uint `gorm:"primaryKey"`
+	Product   product.Product
+	Quantity  int `json:"quantity" validate:"required,min=1"`
+}
 
 type Order struct {
 	gorm.Model
-	UserID   uint              `json:"user_id" validate:"required"`
-	Products []product.Product `gorm:"many2many:order_products; json:"products""`
+	UserID   uint           `json:"user_id" validate:"required"`
+	Products []OrderProduct `gorm:"many2many:order_products; json:"products""`
 }

@@ -28,4 +28,5 @@ func main() {
 	db.AutoMigrate(&product.Product{})
 	db.AutoMigrate(&myuser.Users{})
 	db.AutoMigrate(&order.Order{})
+	db.AutoMigrate(&order.OrderProduct{})
 }

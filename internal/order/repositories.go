@@ -26,7 +26,7 @@ func (repo *OrderRepositories) GetById(id uint) (*Order, error) {
 
 	var Ord Order
 
-	result := repo.Database.First(&Ord, id)
+	result := repo.Database.Preload("Products.Product").First(&Ord, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -38,7 +38,7 @@ func (repo *OrderRepositories) GetAll(id uint) ([]Order, error) {
 
 	var arrord []Order
 
-	repo.Database.Table("orders").
+	repo.Database.Preload("Products.Product").Table("orders").
 		Where("user_id = ?", id).
 		Scan(&arrord)
 
