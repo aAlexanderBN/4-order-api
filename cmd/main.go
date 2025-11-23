@@ -20,22 +20,24 @@ func main() {
 
 	router := http.NewServeMux()
 
-	productRepositories := product.NewProductRepository(db1.DB)
-
-	product.NewProductHandler(router, product.ProductHandlerDeps{
-		ProductRepository: productRepositories,
-	})
-
 	userRepositories := myuser.NewUserRepository(db1.DB)
 	myUser.NewUserHandler(router, myUser.UserHandlerDeps{
 		UserRepository: userRepositories,
 		Config:         conf,
 	})
 
+	productRepositories := product.NewProductRepository(db1.DB)
+
+	product.NewProductHandler(router, product.ProductHandlerDeps{
+		ProductRepository: productRepositories,
+		UserRepository:    userRepositories,
+	})
+
 	orderRepositories := order.NewOrderRepository(db1.DB)
 	order.NewOrderHandler(router, order.OrderHandlerDeps{
 		OrderRepository: orderRepositories,
 		Config:          conf,
+		UserRepository:  userRepositories,
 	})
 
 	server := http.Server{

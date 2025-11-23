@@ -2,6 +2,7 @@ package product
 
 import (
 	"go/api/configs"
+	"go/api/internal/myuser"
 	"go/api/pkg/middleware"
 	"go/api/pkg/req"
 	"go/api/pkg/res"
@@ -14,6 +15,7 @@ import (
 type ProductHandlerDeps struct {
 	ProductRepository *ProductRepositories
 	Config            *configs.Config
+	UserRepository    *myuser.UserRepositories
 }
 
 type ProductHandler struct {
@@ -24,7 +26,7 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 	handler := &ProductHandler{
 		ProductRepository: deps.ProductRepository}
 
-	router.Handle("POST /product", middleware.IsAuthed(handler.Create(), deps.Config))
+	router.Handle("POST /product", middleware.IsAuthed(handler.Create(), deps.Config, deps.UserRepository))
 	router.HandleFunc("PATCH /product", handler.Update())
 	router.HandleFunc("DELETE /product/{id}", handler.Delete())
 	router.HandleFunc("GET /product/{id}", handler.GetById())

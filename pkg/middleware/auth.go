@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go/api/configs"
+	"go/api/internal/myuser"
 	"go/api/pkg/jwt"
 	"net/http"
 	"strings"
@@ -21,7 +22,7 @@ func writeUnauthed(w http.ResponseWriter) {
 	w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 }
 
-func IsAuthed(next http.Handler, config *configs.Config) http.Handler {
+func IsAuthed(next http.Handler, config *configs.Config, userRepo *myuser.UserRepositories) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authedHeader := r.Header.Get("Authorization")
 		if !strings.HasPrefix(authedHeader, "Bearer ") {

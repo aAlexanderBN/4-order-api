@@ -2,6 +2,7 @@ package order
 
 import (
 	"go/api/configs"
+	"go/api/internal/myuser"
 	"go/api/pkg/middleware"
 	"go/api/pkg/req"
 	"go/api/pkg/res"
@@ -12,6 +13,7 @@ import (
 type OrderHandlerDeps struct {
 	OrderRepository *OrderRepositories
 	Config          *configs.Config
+	UserRepository  *myuser.UserRepositories
 }
 
 type OrderHandler struct {
@@ -22,9 +24,9 @@ func NewOrderHandler(router *http.ServeMux, deps OrderHandlerDeps) {
 	handler := &OrderHandler{
 		OrderRepository: deps.OrderRepository}
 
-	router.Handle("POST /order", middleware.IsAuthed(handler.Create(), deps.Config))
-	router.Handle("GET /order/{id}", middleware.IsAuthed(handler.GetById(), deps.Config))
-	router.Handle("GET /my-orders", middleware.IsAuthed(handler.GetAll(), deps.Config))
+	router.Handle("POST /order", middleware.IsAuthed(handler.Create(), deps.Config, deps.UserRepository))
+	router.Handle("GET /order/{id}", middleware.IsAuthed(handler.GetById(), deps.Config, deps.UserRepository))
+	router.Handle("GET /my-orders", middleware.IsAuthed(handler.GetAll(), deps.Config, deps.UserRepository))
 }
 
 func (handler *OrderHandler) Create() http.HandlerFunc {
