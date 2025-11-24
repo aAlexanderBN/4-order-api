@@ -50,7 +50,8 @@ func (handler *UserHandler) AuthByPhone() http.HandlerFunc {
 		id := uuid.New()
 
 		var createdUser *Users
-		if userdb.Phone == "" {
+
+		if err != nil || userdb.Phone == "" { //userdb.Phone == "" {
 			// Пользователь НЕ найден - создаем нового
 			user := Users{
 				Phone:     body.Phone,

@@ -1,6 +1,9 @@
 package product
 
 import (
+	"go/api/configs"
+	"go/api/internal/myuser"
+	"go/api/pkg/middleware"
 	"go/api/pkg/req"
 	"go/api/pkg/res"
 	"net/http"
@@ -11,6 +14,8 @@ import (
 
 type ProductHandlerDeps struct {
 	ProductRepository *ProductRepositories
+	Config            *configs.Config
+	UserRepository    *myuser.UserRepositories
 }
 
 type ProductHandler struct {
@@ -21,7 +26,7 @@ func NewProductHandler(router *http.ServeMux, deps ProductHandlerDeps) {
 	handler := &ProductHandler{
 		ProductRepository: deps.ProductRepository}
 
-	router.HandleFunc("POST /product", handler.Create())
+	router.Handle("POST /product", middleware.IsAuthed(handler.Create(), deps.Config, deps.UserRepository))
 	router.HandleFunc("PATCH /product", handler.Update())
 	router.HandleFunc("DELETE /product/{id}", handler.Delete())
 	router.HandleFunc("GET /product/{id}", handler.GetById())
@@ -58,13 +63,13 @@ func (handler *ProductHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		product := Product{
-			Name:        body.Name,
-			Description: body.Description,
-			//Images:      pq.StringArray{},
-		}
+		// product := Product{
+		// 	Name:        body.Name,
+		// 	Description: body.Description,
+		// 	//Images:      pq.StringArray{},
+		// }
 
-		createdLProduct, err := handler.ProductRepository.Update(&product)
+		createdLProduct, err := handler.ProductRepository.Update(body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -94,7 +99,7 @@ func (handler *ProductHandler) Delete() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		res.Json(w, nil, 200)
+		res.Json(w, "Удалено", 200)
 	}
 }
 
