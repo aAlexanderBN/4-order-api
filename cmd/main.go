@@ -31,6 +31,7 @@ func main() {
 	product.NewProductHandler(router, product.ProductHandlerDeps{
 		ProductRepository: productRepositories,
 		UserRepository:    userRepositories,
+		Config:            conf,
 	})
 
 	orderRepositories := order.NewOrderRepository(db1.DB)

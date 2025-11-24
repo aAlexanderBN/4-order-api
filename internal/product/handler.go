@@ -63,13 +63,13 @@ func (handler *ProductHandler) Update() http.HandlerFunc {
 			return
 		}
 
-		product := Product{
-			Name:        body.Name,
-			Description: body.Description,
-			//Images:      pq.StringArray{},
-		}
+		// product := Product{
+		// 	Name:        body.Name,
+		// 	Description: body.Description,
+		// 	//Images:      pq.StringArray{},
+		// }
 
-		createdLProduct, err := handler.ProductRepository.Update(&product)
+		createdLProduct, err := handler.ProductRepository.Update(body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -99,7 +99,7 @@ func (handler *ProductHandler) Delete() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		res.Json(w, nil, 200)
+		res.Json(w, "Удалено", 200)
 	}
 }
 
