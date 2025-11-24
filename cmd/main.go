@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func App() http.Handler {
+func app() http.Handler {
 
 	conf := configs.LoadConfig("aalexanderbn@yandex.ru")
 
