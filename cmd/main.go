@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func App() http.Handler {
 
 	conf := configs.LoadConfig("aalexanderbn@yandex.ru")
 
@@ -41,9 +41,44 @@ func main() {
 		UserRepository:  userRepositories,
 	})
 
+	stack := middleware.Logging(router)
+	return stack
+}
+
+func main() {
+
+	// conf := configs.LoadConfig("aalexanderbn@yandex.ru")
+
+	// db1 := db.NewDb(conf)
+
+	// router := http.NewServeMux()
+
+	// userRepositories := myuser.NewUserRepository(db1.DB)
+	// myUser.NewUserHandler(router, myUser.UserHandlerDeps{
+	// 	UserRepository: userRepositories,
+	// 	Config:         conf,
+	// })
+
+	// productRepositories := product.NewProductRepository(db1.DB)
+
+	// product.NewProductHandler(router, product.ProductHandlerDeps{
+	// 	ProductRepository: productRepositories,
+	// 	UserRepository:    userRepositories,
+	// 	Config:            conf,
+	// })
+
+	// orderRepositories := order.NewOrderRepository(db1.DB)
+	// order.NewOrderHandler(router, order.OrderHandlerDeps{
+	// 	OrderRepository: orderRepositories,
+	// 	Config:          conf,
+	// 	UserRepository:  userRepositories,
+	// })
+
+	app := app()
+
 	server := http.Server{
 		Addr:    ":8081",
-		Handler: middleware.Logging(router),
+		Handler: app,
 	}
 
 	fmt.Println("Server is listening on port 8081")
